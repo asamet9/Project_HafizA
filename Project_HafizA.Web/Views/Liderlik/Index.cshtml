@@ -1,0 +1,50 @@
+﻿@model List<Project_HafizA.Core.Liderlik>
+
+@{
+    ViewData["Title"] = "Liderlik Tablosu";
+}
+
+<div style="text-align:center; font-family:sans-serif; padding:16px;">
+
+    <div style="max-width:500px; margin:0 auto;">
+        <a href="/" style="text-decoration:none; color:#888; font-size:0.9em; display:block; text-align:left; margin-bottom:16px;">← Menü</a>
+
+        <h2 style="margin-bottom:4px;">🏅 Liderlik Tablosu</h2>
+        <p style="color:#aaa; font-size:0.9em; margin-bottom:24px;">En iyi 20 oyuncu</p>
+
+        @if (Model == null || !Model.Any())
+        {
+            <p style="color:#aaa;">Henüz kayıt yok.</p>
+        }
+        else
+        {
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var item = Model[i];
+                string bg = i == 0 ? "#fff9e6" : i == 1 ? "#f5f5f5" : i == 2 ? "#fff3ee" : "#fafafa";
+                string madalya = i == 0 ? "🥇" : i == 1 ? "🥈" : i == 2 ? "🥉" : (i + 1) + ".";
+
+                <div style="display:flex; align-items:center; justify-content:space-between;
+                                    padding:14px 16px; margin-bottom:8px; border-radius:10px;
+                                    border:1px solid #eee; background:@bg;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span style="font-size:1.3em; min-width:32px;">@madalya</span>
+                        <div style="text-align:left;">
+                            <div style="font-weight:bold; font-size:1em;">@item.KullaniciAdi</div>
+                            <div style="font-size:0.8em; color:#aaa;">@item.Tarih.ToString("dd.MM.yyyy")</div>
+                        </div>
+                    </div>
+                    <div style="font-size:1.3em; font-weight:bold; color:#f39c12;">@item.Skor</div>
+                </div>
+            }
+        }
+
+        <div style="margin-top:24px;">
+            <button onclick="window.location.href='/'"
+                    style="width:100%; padding:14px; font-size:1em; border-radius:10px;
+                           border:1px solid #ccc; background:white; cursor:pointer;">
+                🏠 Ana Menü
+            </button>
+        </div>
+    </div>
+</div>

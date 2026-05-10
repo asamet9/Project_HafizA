@@ -1,0 +1,123 @@
+﻿@{
+    ViewData["Title"] = "Ayarlar";
+}
+
+<div style="font-family:sans-serif; padding:16px; max-width:500px; margin:0 auto;">
+
+    <a href="/" style="text-decoration:none; color:#888; font-size:0.9em;">← Menü</a>
+    <h2 style="margin:16px 0 24px;">⚙️ Ayarlar</h2>
+
+    <!-- Font Seçimi -->
+    <div style="margin-bottom:32px;">
+        <h3 style="margin-bottom:12px; font-size:1em; color:#555;">📖 Arapça Font</h3>
+        <div style="display:flex; flex-direction:column; gap:8px;" id="fontListesi">
+            <div class="ayarKart" onclick="fontSec('Amiri')" id="font-Amiri">
+                <div style="font-family:'Amiri'; font-size:1.4em; direction:rtl;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+                <div style="font-size:0.85em; color:#888; margin-top:4px;">Amiri — Klasik Kuran stili</div>
+            </div>
+            <div class="ayarKart" onclick="fontSec('Scheherazade New')" id="font-Scheherazade New">
+                <div style="font-family:'Scheherazade New'; font-size:1.4em; direction:rtl;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+                <div style="font-size:0.85em; color:#888; margin-top:4px;">Scheherazade — Geleneksel</div>
+            </div>
+            <div class="ayarKart" onclick="fontSec('Noto Naskh Arabic')" id="font-Noto Naskh Arabic">
+                <div style="font-family:'Noto Naskh Arabic'; font-size:1.4em; direction:rtl;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+                <div style="font-size:0.85em; color:#888; margin-top:4px;">Noto Naskh — Modern temiz</div>
+            </div>
+            <div class="ayarKart" onclick="fontSec('Reem Kufi')" id="font-Reem Kufi">
+                <div style="font-family:'Reem Kufi'; font-size:1.4em; direction:rtl;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+                <div style="font-size:0.85em; color:#888; margin-top:4px;">Reem Kufi — Köşeli modern</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tema Seçimi -->
+    <div style="margin-bottom:32px;">
+        <h3 style="margin-bottom:12px; font-size:1em; color:#555;">🎨 Tema</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div class="temaKart" onclick="temaSec('acik')" id="tema-acik">
+                <div style="width:100%; height:40px; background:#ffffff; border-radius:6px; border:1px solid #eee; margin-bottom:6px;"></div>
+                <div style="font-size:0.85em;">☀️ Açık</div>
+            </div>
+            <div class="temaKart" onclick="temaSec('koyu')" id="tema-koyu">
+                <div style="width:100%; height:40px; background:#1a1a2e; border-radius:6px; margin-bottom:6px;"></div>
+                <div style="font-size:0.85em;">🌙 Koyu</div>
+            </div>
+            <div class="temaKart" onclick="temaSec('golden')" id="tema-golden">
+                <div style="width:100%; height:40px; background:linear-gradient(135deg,#f6d365,#fda085); border-radius:6px; margin-bottom:6px;"></div>
+                <div style="font-size:0.85em;">✨ Golden</div>
+            </div>
+            <div class="temaKart" onclick="temaSec('premium')" id="tema-premium">
+                <div style="width:100%; height:40px; background:linear-gradient(135deg,#667eea,#764ba2); border-radius:6px; margin-bottom:6px;"></div>
+                <div style="font-size:0.85em;">💎 Premium</div>
+            </div>
+        </div>
+    </div>
+
+    <button onclick="window.location.href='/'"
+            style="width:100%; padding:14px; font-size:1em; border-radius:10px;
+                   border:none; background:#2ecc71; color:white; cursor:pointer;">
+        ✅ Kaydet ve Dön
+    </button>
+</div>
+
+<link href="https://fonts.googleapis.com/css2?family=Amiri&family=Scheherazade+New&family=Noto+Naskh+Arabic&family=Reem+Kufi&display=swap" rel="stylesheet">
+
+<style>
+    .ayarKart {
+        padding: 14px 16px;
+        border: 2px solid #eee;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: border-color 0.2s;
+        background: #fafafa;
+    }
+
+        .ayarKart.secili {
+            border-color: #2ecc71;
+            background: #f0fff4;
+        }
+
+    .temaKart {
+        padding: 12px;
+        border: 2px solid #eee;
+        border-radius: 10px;
+        cursor: pointer;
+        text-align: center;
+        background: #fafafa;
+    }
+
+        .temaKart.secili {
+            border-color: #2ecc71;
+        }
+</style>
+
+<script>
+    // Mevcut ayarları yükle
+    const mevcutFont = localStorage.getItem('ayar_font') || 'Amiri';
+    const mevcutTema = localStorage.getItem('ayar_tema') || 'acik';
+
+    seciliGoster('font', mevcutFont);
+    seciliGoster('tema', mevcutTema);
+
+    function fontSec(font) {
+        localStorage.setItem('ayar_font', font);
+        seciliGoster('font', font);
+    }
+
+    function temaSec(tema) {
+        localStorage.setItem('ayar_tema', tema);
+        seciliGoster('tema', tema);
+    }
+
+    function seciliGoster(tip, deger) {
+        if (tip === 'font') {
+            document.querySelectorAll('.ayarKart').forEach(k => k.classList.remove('secili'));
+            const el = document.getElementById('font-' + deger);
+            if (el) el.classList.add('secili');
+        } else {
+            document.querySelectorAll('.temaKart').forEach(k => k.classList.remove('secili'));
+            const el = document.getElementById('tema-' + deger);
+            if (el) el.classList.add('secili');
+        }
+    }
+</script>

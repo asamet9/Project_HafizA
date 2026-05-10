@@ -1,0 +1,170 @@
+﻿@{
+    ViewData["Title"] = "Ana Sayfa";
+}
+
+<div style="text-align:center; margin-top:60px; font-family:sans-serif; padding:0 16px;">
+    <h2>📖 Hafıza Uygulaması</h2>
+    <p style="color:#888; margin-bottom:40px;">Bir mod seçin</p>
+
+    <div style="display:flex; flex-direction:column; gap:16px; max-width:320px; margin:0 auto;">
+
+        <div style="border:1px solid #ccc; border-radius:12px; padding:24px; background:#fafafa; cursor:pointer;"
+             onclick="modSec('rekabetci')">
+            <div style="font-size:2em;">🏆</div>
+            <h3 style="margin:8px 0 4px;">Rekabetçi Mod</h3>
+            <p style="color:#888; font-size:0.9em; margin:0;">Hata yapma lüksün yok! Ne kadar ileri gidebilirsin?</p>
+        </div>
+
+        <div style="border:1px solid #ccc; border-radius:12px; padding:24px; background:#fafafa; cursor:pointer;"
+             onclick="modSec('antrenman')">
+            <div style="font-size:2em;">🎯</div>
+            <h3 style="margin:8px 0 4px;">Antrenman Modu</h3>
+            <p style="color:#888; font-size:0.9em; margin:0;">Süre seç, rahatça çalış, sonunda istatistiklerini gör.</p>
+        </div>
+
+    </div>
+
+    <!-- Rekabetçi Form -->
+    <div id="rekabetciForm" style="display:none; margin-top:30px; max-width:320px; margin-left:auto; margin-right:auto;">
+        <input id="kullaniciAdi" type="text" placeholder="Kullanıcı adın"
+               style="width:100%; padding:14px; font-size:1em; border:1px solid #ccc;
+                      border-radius:8px; box-sizing:border-box; margin-bottom:12px;" />
+        <button onclick="rekabetciBaslat()"
+                style="width:100%; padding:14px; font-size:1em; background:#e74c3c;
+                       color:white; border:none; border-radius:8px; cursor:pointer;">
+            🏆 Başla
+        </button>
+    </div>
+
+    <!-- Antrenman Form -->
+    <div id="antrenmanForm" style="display:none; margin-top:20px; max-width:380px; margin-left:auto; margin-right:auto;">
+        <div style="border:1px solid #ddd; border-radius:16px; padding:24px; background:#fafafa; text-align:left;">
+
+            <h3 style="margin:0 0 20px; text-align:center; font-size:1.1em;">🎯 Antrenman Ayarları</h3>
+
+            <p style="color:#555; font-size:0.9em; margin:0 0 8px; font-weight:bold;">⏱️ Süre</p>
+            <div style="display:flex; gap:8px; margin-bottom:20px;">
+                <button onclick="sureSec(this, 10)" class="sureBtn"
+                        style="flex:1; padding:12px 4px; font-size:0.85em; border:1px solid #ddd;
+                               border-radius:8px; cursor:pointer; background:white; text-align:center;">
+                    10sn<br><small style="color:#aaa;">Test</small>
+                </button>
+                <button onclick="sureSec(this, 300)" class="sureBtn"
+                        style="flex:1; padding:12px 4px; font-size:0.85em; border:1px solid #ddd;
+                               border-radius:8px; cursor:pointer; background:white; text-align:center;">
+                    5 dk
+                </button>
+                <button onclick="sureSec(this, 600)" class="sureBtn"
+                        style="flex:1; padding:12px 4px; font-size:0.85em; border:1px solid #ddd;
+                               border-radius:8px; cursor:pointer; background:white; text-align:center;">
+                    10 dk
+                </button>
+                <button onclick="sureSec(this, 900)" class="sureBtn"
+                        style="flex:1; padding:12px 4px; font-size:0.85em; border:1px solid #ddd;
+                               border-radius:8px; cursor:pointer; background:white; text-align:center;">
+                    15 dk
+                </button>
+            </div>
+
+            <p style="color:#555; font-size:0.9em; margin:0 0 8px; font-weight:bold;">⚡ Zorluk</p>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;">
+                <button onclick="zorlukSec(this, 'kolay')" class="zorlukBtn"
+                        style="width:100%; padding:12px 16px; border:1px solid #ddd; border-radius:8px;
+                               cursor:pointer; background:white; text-align:left; display:flex;
+                               justify-content:space-between; align-items:center;">
+                    <span>😊 Kolay</span>
+                    <small style="color:#aaa;">%50 benzerlik yeterli</small>
+                </button>
+                <button onclick="zorlukSec(this, 'orta')" class="zorlukBtn"
+                        style="width:100%; padding:12px 16px; border:1px solid #ddd; border-radius:8px;
+                               cursor:pointer; background:white; text-align:left; display:flex;
+                               justify-content:space-between; align-items:center;">
+                    <span>💪 Orta</span>
+                    <small style="color:#aaa;">%65 benzerlik gerekli</small>
+                </button>
+                <button onclick="zorlukSec(this, 'hafizpromax')" class="zorlukBtn"
+                        style="width:100%; padding:12px 16px; border:1px solid #ddd; border-radius:8px;
+                               cursor:pointer; background:white; text-align:left; display:flex;
+                               justify-content:space-between; align-items:center;">
+                    <span>🔥 Hafız PROMAX</span>
+                    <small style="color:#aaa;">%90 benzerlik şart!</small>
+                </button>
+            </div>
+
+            <button onclick="antrenmanBaslat()"
+                    style="width:100%; padding:14px; font-size:1em; background:#2ecc71;
+                           color:white; border:none; border-radius:10px; cursor:pointer;">
+                🎯 Başla
+            </button>
+        </div>
+    </div>
+
+    <div style="margin-top:30px;">
+        <a href="/Liderlik">
+            <button style="padding:12px 28px; font-size:0.95em; border-radius:8px;
+                           cursor:pointer; border:1px solid #ccc; background:white;">
+                🏅 Liderlik Tablosu
+            </button>
+        </a>
+    </div>
+
+    <div style="margin-top:16px;">
+        <button onclick="window.location.href='/Ayarlar'"
+                style="padding:12px 28px; font-size:0.95em; border-radius:8px;
+                       cursor:pointer; border:1px solid #ccc; background:white;">
+            ⚙️ Ayarlar
+        </button>
+    </div>
+
+</div>
+
+<script>
+    let secilenSure = 0;
+    let secilenZorluk = '';
+
+    function modSec(mod) {
+        document.getElementById('rekabetciForm').style.display = 'none';
+        document.getElementById('antrenmanForm').style.display = 'none';
+        if (mod === 'rekabetci') {
+            document.getElementById('rekabetciForm').style.display = 'block';
+        } else {
+            document.getElementById('antrenmanForm').style.display = 'block';
+        }
+    }
+
+    function sureSec(btn, sure) {
+        document.querySelectorAll('.sureBtn').forEach(b => {
+            b.style.background = 'white';
+            b.style.color = 'black';
+            b.style.borderColor = '#ddd';
+        });
+        btn.style.background = '#2ecc71';
+        btn.style.color = 'white';
+        btn.style.borderColor = '#2ecc71';
+        secilenSure = sure;
+    }
+
+    function zorlukSec(btn, zorluk) {
+        document.querySelectorAll('.zorlukBtn').forEach(b => {
+            b.style.background = 'white';
+            b.style.color = 'black';
+            b.style.borderColor = '#ddd';
+        });
+        btn.style.background = '#3498db';
+        btn.style.color = 'white';
+        btn.style.borderColor = '#3498db';
+        secilenZorluk = zorluk;
+    }
+
+    function rekabetciBaslat() {
+        const ad = document.getElementById('kullaniciAdi').value.trim();
+        if (!ad) { alert('Lütfen kullanıcı adı girin!'); return; }
+        window.location.href = '/Home/Rekabetci?kullaniciAdi=' + encodeURIComponent(ad);
+    }
+
+    function antrenmanBaslat() {
+        if (secilenSure === 0) { alert('Lütfen süre seçin!'); return; }
+        if (!secilenZorluk) { alert('Lütfen zorluk seçin!'); return; }
+        window.location.href = '/Home/Antrenman?mod=antrenman&sure=' + secilenSure + '&zorluk=' + secilenZorluk;
+    }
+</script>

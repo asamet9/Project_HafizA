@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#2ecc71" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Hafıza" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Scheherazade+New&family=Noto+Naskh+Arabic&family=Reem+Kufi&display=swap" rel="stylesheet">
+    <title>@ViewData["Title"]</title>
+</head>
+<body style="margin:0; padding:0; font-family:sans-serif; background:#fff;">
+    @RenderBody()
+    <script>
+        const _font = localStorage.getItem('ayar_font') || 'Amiri';
+        document.querySelectorAll('#ayetMetin, p[style*="direction:rtl"]').forEach(el => {
+            el.style.fontFamily = _font;
+        });
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

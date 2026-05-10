@@ -1,0 +1,251 @@
+﻿@model Project_HafizA.Core.Main
+
+@{
+    ViewData["Title"] = "Rekabetçi Mod";
+    string kullaniciAdi = ViewBag.KullaniciAdi;
+}
+
+<div style="text-align:center; font-family:sans-serif; padding:16px;">
+
+    <div style="display:flex; justify-content:space-between; align-items:center;
+                max-width:650px; margin:0 auto 20px auto;">
+        <a href="/" style="text-decoration:none; color:#888; font-size:0.9em;">← Menü</a>
+        <div style="font-size:1em; color:#888;">🏆 <strong style="color:#333;">@kullaniciAdi</strong></div>
+        <div style="font-size:1.2em; font-weight:bold; color:#f39c12;">
+            Skor: <span id="skor">0</span>
+        </div>
+    </div>
+
+    @if (Model != null)
+    {
+        <div style="margin:0 auto 20px auto; max-width:650px; padding:20px;
+                        border:1px solid #ccc; border-radius:12px; background:#fafafa;">
+            <p id="ayetMetin" style="font-size:1.5em; direction:rtl; line-height:2; margin:0;">@Model.Metin</p>
+            <small id="ayetBilgi" style="color:gray;">Sure: @Model.Sure_kodu | Ayet No: @Model.Ayet_no</small>
+            <input type="hidden" id="ayetKodu" value="@Model.Ayet_kodu" />
+        </div>
+
+        <div style="max-width:320px; margin:0 auto;">
+            <button id="mikrofonBtn"
+                    style="width:100%; padding:16px; font-size:1.1em; background:#2ecc71;
+                               color:white; border:none; border-radius:10px; cursor:pointer; margin-bottom:8px;">
+                🎙️ Okumaya Başla
+            </button>
+            <button id="durdurBtn"
+                    style="width:100%; padding:16px; font-size:1.1em; background:#e74c3c;
+                               color:white; border:none; border-radius:10px; cursor:pointer;
+                               display:none; margin-bottom:8px;">
+                ⏹️ Bitir ve Kontrol Et
+            </button>
+        </div>
+
+        <div id="durum" style="margin-top:12px; color:#888; min-height:24px;"></div>
+
+        <div id="sonucKart" style="display:none; max-width:400px; margin:16px auto;
+                                       padding:24px; border-radius:12px; border:2px solid #ccc;">
+            <div id="sonucIkon" style="font-size:3em; margin-bottom:8px;"></div>
+            <div id="sonucYazi" style="font-size:1.2em; font-weight:bold; margin-bottom:8px;"></div>
+            <div id="sonucOkunan" style="font-size:0.9em; color:#888; direction:rtl; margin-bottom:16px;"></div>
+            <button onclick="sonrakiAyet()"
+                    style="width:100%; padding:14px; font-size:1em; background:#3498db;
+                               color:white; border:none; border-radius:8px; cursor:pointer;">
+                ➡️ Sonraki Ayet
+            </button>
+        </div>
+    }
+</div>
+
+<div id="bitisEkrani" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+                              background:rgba(0,0,0,0.88); z-index:999; font-family:sans-serif;">
+    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+                text-align:center; color:white; width:90%; max-width:400px;">
+        <div style="font-size:4em; margin-bottom:12px;">💀</div>
+        <h2 style="margin:0 0 8px;">Oyun Bitti!</h2>
+        <p style="color:#aaa; margin:0 0 8px;">@kullaniciAdi</p>
+
+        <div style="background:rgba(243,156,18,0.2); border:1px solid #f39c12;
+                    border-radius:12px; padding:20px 40px; margin-bottom:24px; display:inline-block;">
+            <div style="font-size:3em; font-weight:bold; color:#f39c12;" id="finalSkor">0</div>
+            <div style="font-size:0.85em; color:#aaa; margin-top:4px;">Puan</div>
+        </div>
+
+        <p id="kayitDurum" style="color:#aaa; font-size:0.9em; margin-bottom:20px;">Skor kaydediliyor...</p>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            <button onclick="window.location.href='/Liderlik'"
+                    style="width:100%; padding:14px; font-size:1em; background:#f39c12;
+                           color:white; border:none; border-radius:10px; cursor:pointer;">
+                🏅 Liderlik Tablosu
+            </button>
+            <button onclick="tekrarDene()"
+                    style="width:100%; padding:14px; font-size:1em; background:#2ecc71;
+                           color:white; border:none; border-radius:10px; cursor:pointer;">
+                🔄 Tekrar Dene
+            </button>
+            <button onclick="window.location.href='/'"
+                    style="width:100%; padding:14px; font-size:1em; background:transparent;
+                           color:white; border:1px solid rgba(255,255,255,0.3);
+                           border-radius:10px; cursor:pointer;">
+                🏠 Ana Menü
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let mediaRecorder, chunks = [], stream;
+    let skor = 0;
+    let oyunBitti = false;
+    const kullaniciAdi = '@kullaniciAdi';
+
+    const mikrofonBtn = document.getElementById('mikrofonBtn');
+    const durdurBtn = document.getElementById('durdurBtn');
+    const durum = document.getElementById('durum');
+
+    mikrofonBtn.addEventListener('click', kaydiBaslat);
+    durdurBtn.addEventListener('click', kaydiDurdur);
+
+    function desteklenenFormat() {
+        const formatlar = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'];
+        for (const f of formatlar) {
+            try { if (MediaRecorder.isTypeSupported(f)) return f; } catch(e) {}
+        }
+        return '';
+    }
+
+    async function kaydiBaslat() {
+        if (oyunBitti) return;
+        try {
+            durum.innerText = '⏳ Mikrofon başlatılıyor...';
+            chunks = [];
+            stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true } });
+            const mimeType = desteklenenFormat();
+            mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+            mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+            mediaRecorder.onstop = () => {
+                const mime = mediaRecorder.mimeType || 'audio/webm';
+                const blob = new Blob(chunks, { type: mime });
+                stream.getTracks().forEach(t => t.stop());
+                gonder(blob, mime);
+            };
+            mediaRecorder.start(100);
+            durum.innerText = '🔴 Kayıt yapılıyor...';
+            mikrofonBtn.style.display = 'none';
+            durdurBtn.style.display = 'block';
+        } catch (err) {
+            durum.innerText = '⚠️ ' + err.name + ': ' + err.message;
+        }
+    }
+
+    function kaydiDurdur() {
+        if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
+        durdurBtn.style.display = 'none';
+        // mikrofonBtn.style.display = 'block';  // BU SATIRI SİL
+        durum.innerText = '⏳ İşleniyor...';
+        mediaRecorder.stop();
+    }
+
+    async function gonder(blob, mimeType) {
+        const ayetKodu = document.getElementById('ayetKodu').value;
+        let uzanti = 'webm';
+        if (mimeType.includes('mp4')) uzanti = 'mp4';
+        else if (mimeType.includes('ogg')) uzanti = 'ogg';
+
+        const formData = new FormData();
+        formData.append('sesData', blob, 'ses.' + uzanti);
+        formData.append('ayetKodu', ayetKodu);
+
+        try {
+            const res = await fetch('/Ses/KontrolEt', { method: 'POST', body: formData });
+            const data = await res.json();
+            durum.innerText = '';
+
+            if (data.hata) {
+                durum.innerText = '⚠️ ' + data.hata;
+                return;
+            }
+
+            if (data.dogru) {
+                skor++;
+                document.getElementById('skor').innerText = skor;
+                sonucGoster(true, data.okunan, data.kelimeler);
+            } else {
+                sonucGoster(false, data.okunan, data.kelimeler);
+                setTimeout(() => oyunuBitir(), 1500);
+            }
+        } catch (e) {
+            durum.innerText = '⚠️ Sunucu hatası: ' + e.message;
+        }
+    }
+
+    function sonucGoster(dogru, okunan, kelimeler) {
+        const kart = document.getElementById('sonucKart');
+        document.getElementById('sonucIkon').innerText = dogru ? '✅' : '❌';
+        document.getElementById('sonucYazi').innerText = dogru ? 'Doğru! Devam et!' : 'Yanlış! Oyun bitti!';
+        document.getElementById('sonucYazi').style.color = dogru ? '#2ecc71' : '#e74c3c';
+       const font = localStorage.getItem('ayar_font') || 'Amiri';
+    const sonucOkunanEl = document.getElementById('sonucOkunan');
+    sonucOkunanEl.innerText = 'Okuduğunuz: ' + okunan;
+    sonucOkunanEl.style.fontFamily = font;
+        kart.style.borderColor = dogru ? '#2ecc71' : '#e74c3c';
+
+        if (kelimeler && kelimeler.length > 0) {
+            const ayetEl = document.getElementById('ayetMetin');
+            const font = localStorage.getItem('ayar_font') || 'Amiri';
+            ayetEl.innerHTML = kelimeler.map(k =>
+                `<span style="color:${k.dogru ? '#2ecc71' : '#e74c3c'}; margin:0 2px; font-family:${font};">${k.kelime}</span>`
+            ).join(' ');
+        }
+
+        kart.style.display = 'block';
+        mikrofonBtn.style.display = 'none';
+        durdurBtn.style.display = 'none';
+    }
+
+    async function sonrakiAyet() {
+        if (oyunBitti) return;
+        document.getElementById('sonucKart').style.display = 'none';
+        durum.innerText = '';
+        mikrofonBtn.style.display = 'block';
+
+        try {
+            const res = await fetch('/Home/RastgeleAyetJson');
+            const data = await res.json();
+            document.getElementById('ayetKodu').value = data.ayet_kodu;
+            const ayetEl = document.getElementById('ayetMetin');
+            const font = localStorage.getItem('ayar_font') || 'Amiri';
+            ayetEl.style.fontFamily = font;
+            ayetEl.style.color = '';
+            ayetEl.innerText = data.metin;
+            document.getElementById('ayetBilgi').innerText = 'Sure: ' + data.sure_kodu + ' | Ayet No: ' + data.ayet_no;
+        } catch(e) {
+            durum.innerText = '⚠️ Ayet yüklenemedi.';
+        }
+    }
+
+    async function oyunuBitir() {
+        oyunBitti = true;
+        document.getElementById('finalSkor').innerText = skor;
+        document.getElementById('bitisEkrani').style.display = 'block';
+
+        try {
+            await fetch('/Liderlik/SkorKaydet', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ kullaniciAdi: kullaniciAdi, skor: skor })
+            });
+            document.getElementById('kayitDurum').innerText = '✅ Skor kaydedildi!';
+        } catch(e) {
+            document.getElementById('kayitDurum').innerText = '⚠️ Skor kaydedilemedi.';
+        }
+    }
+
+    function tekrarDene() {
+        window.location.href = '/Home/Rekabetci?kullaniciAdi=' + encodeURIComponent(kullaniciAdi);
+    }
+
+    window.addEventListener('load', () => {
+        const font = localStorage.getItem('ayar_font') || 'Amiri';
+        document.getElementById('ayetMetin').style.fontFamily = font;
+    });
+</script>
